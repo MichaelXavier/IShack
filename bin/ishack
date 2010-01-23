@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+$: << File.join( File.dirname( __FILE__ ), '..', 'lib' )
+require 'fileutils'
+require 'ishack'
+
+options = {
+            :debug     => false,
+            :progress  => false, 
+            :transload => false,
+            :key       => nil
+          }
+
+optparse = OptionParser.new do |opts|
+        opts.banner = "Usage: ishack [-p] ((-t url1 url2 ...) | (file1 file2 ...))"
+
+        opts.on '-h', '--help', 'Display Help Page' do
+          puts opts
+          exit
+        end
+
+        opts.on '-p', '--progress', 'Display a progress bar for file uploads.' do
+          options[:progress] = true
+        end
+
+        opts.on '-t', '--transload', 'Indicates that the arguments are URLs to be transloaded.' do |dir|
+          options[:transload] = true
+        end
+
+        opts.on '-d', '--debug', 'Run in debug mode with stack traces.' do
+          options[:debug] = true
+        end
+
+        opts.on '-k', '--api-key', 'Specify the api key to use if not the default' do |key|
+          options[:key] = key
+        end
+end
+
+optparse.parse!
+
+options[:items] = ARGV
+
+debug = options.delete(:debug)
+
+begin
+  config_dir = File.join(ENV['HOME'], '.config', 'ishack')
+  unless File.exists? config_dir
+    FileUtils.mkdir_p(config_dir)
+  end
+
+  config_file = File.join(ENV['HOME'], '.config', 'ishack', 'api_key')
+
+  options[:key] ||= ENV['ISHACK_KEY'] || (File.file?(config_file) ? File.read(config_file).strip : raise("Missing api_key file in #{config_dir}"))
+
+  ishack = IShack::Uploader.new(options)
+  ishack.run
+rescue StandardError, ScriptError => e
+  puts "Error: #{e.message}#{"\n#{e.backtrace.join("\n")}" if debug}"
+end
