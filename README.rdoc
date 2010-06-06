@@ -1,0 +1,2 @@
+= IShack
+A utility for uploading images to the ImageShack hosting service. ishack --help for usage.

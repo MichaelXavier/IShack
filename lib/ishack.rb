@@ -5,7 +5,7 @@ require 'multipart'
 require 'nokogiri'
 
 module IShack
-  VERSION = '0.1b'
+  VERSION = '0.1'
 
   class ImageshackError < RuntimeError; end
 
@@ -28,7 +28,6 @@ module IShack
     end
 
     def initialize(options={})
-      puts options.inspect; exit#MXDEBUG
       validate_options(options)
       parse_items(options)
 
