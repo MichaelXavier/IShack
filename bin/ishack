@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
-$: << File.join( File.dirname( __FILE__ ), '..', 'lib' )
+$: << File.join( File.dirname( __FILE__ ), '..')
 require 'fileutils'
-require 'ishack'
+require 'lib/ishack'
 
 options = {
             :debug     => false,
