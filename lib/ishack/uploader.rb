@@ -4,15 +4,10 @@ require 'progressbar'
 require 'multipart'
 require 'nokogiri'
 
+require 'ishack/image_tuple'
+
 module IShack
   class ImageshackError < RuntimeError; end
-
-  class ImageTuple
-    attr_reader :origin, :link
-    def initialize(origin, link)
-      @origin, @link = origin, link
-    end
-  end
 
   class Uploader
     class << self
