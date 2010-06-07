@@ -11,10 +11,6 @@ module IShack
 
   class Uploader
     class << self
-      def uri_filename(uri)
-        uri.path.split('/').last
-      end
-
       def api_uri
         URI.parse('http://www.imageshack.us/upload_api.php')
       end
