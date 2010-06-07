@@ -79,7 +79,7 @@ module IShack
 
     def validate_options(options)
       raise ArgumentError, "Must have at least 1 item to upload." if options[:items].empty? 
-      raise ArgumentError, "Must specify an API key." unless options[:key]
+      raise ArgumentError, "Must specify an API key." unless options[:key] and !options[:key].empty?
 
       unless options[:transload]
         options[:items].each do |f|
