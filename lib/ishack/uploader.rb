@@ -20,8 +20,8 @@ module IShack
       validate_options(options)
       parse_items(options)
 
-      @key      = options.delete(:key)
-      @progress = options.delete(:progress)
+      @key      = options[:key]
+      @progress = options[:progress]
       @links    = []
     end
 
@@ -43,8 +43,8 @@ module IShack
   private
 
     def parse_items(options)
-      @mode  = options.delete(:transload) ? :transload : :upload
-      @items = options.delete(:items)
+      @mode  = options[:transload] ? :transload : :upload
+      @items = options[:items]
       @items.collect! {|i| URI.parse(i)} if @mode == :transload
     end
 

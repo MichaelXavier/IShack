@@ -12,11 +12,59 @@ describe IShack::Uploader do
   end
 
   context "instance" do
-    describe "validation" do
-      before(:all) do
-        @item = "whatev.jpg"
-        @options = {:transload => false, :items => [@item], :key => 'secret'}
+    before(:each) do
+      @http = mock(Net::HTTP).as_null_object
+      Net::HTTP.stub(:new).and_return(@http)
+      set_valid_options
+      File.stub(:exists?).and_return(true)
+    end
+
+    describe "#run" do
+      context "progress bar" do
+        before(:each) do
+          @pbar = mock(ProgressBar).as_null_object
+          @options[:items] << @item
+        end
+
+        it "does not create a progress bar unless requested" do
+          uploader = IShack::Uploader.new(@options.merge(:progress => false)  )
+          uploader.stub(:upload)
+          uploader.stub(:display_results)
+          ProgressBar.should_not_receive(:new)
+          uploader.run 
+        end
+
+        it "creates a progress bar if requested" do
+          ProgressBar.should_receive(:new).with(anything(), 2).and_return(@pbar)
+          uploader = IShack::Uploader.new(@options.merge(:progress => true))
+          uploader.stub(:upload)
+          uploader.stub(:display_results)
+          @pbar.should_receive(:inc).exactly(2).times
+          uploader.run
+        end
       end
+
+      it "transloads when the :transload option is set" do
+        uploader = IShack::Uploader.new(@options.merge(:transload => true))
+        uploader.stub(:display_results)
+        uploader.should_receive(:transload).with(@item)
+        uploader.run
+      end
+
+      it "uploads by default" do
+        uploader = IShack::Uploader.new(@options.merge(:transload => false))
+        uploader.stub(:display_results)
+        uploader.should_receive(:upload).with(@item)
+        uploader.run
+      end
+    end
+
+    describe "validation" do
+      before(:each) do
+        set_valid_options
+        File.stub(:exists?).and_return(true)
+      end
+
       it "requires at least one thing being uploaded" do
         lambda { IShack::Uploader.new(@options.merge(:items => [])) }.should raise_error(ArgumentError)
       end
@@ -35,10 +83,15 @@ describe IShack::Uploader do
       end
 
       it "accepts valid options" do
-        File.stub(:exists?).and_return(true)
         lambda { IShack::Uploader.new(@options) }.should_not raise_error(ArgumentError)
       end
     end
   end
 
+private
+
+  def set_valid_options
+    @items = ["whatev.jpg", "thing.gif"]
+    @options = {:transload => false, :items => [@item], :key => 'secret', :progress => true}
+  end
 end
