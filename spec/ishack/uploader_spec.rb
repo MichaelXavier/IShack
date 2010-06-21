@@ -17,15 +17,12 @@ describe IShack::Uploader do
       Net::HTTP.stub(:new).and_return(@http)
       set_valid_options
       File.stub(:exists?).and_return(true)
+      @pbar = mock(ProgressBar).as_null_object
+      ProgressBar.stub(:new).and_return(@pbar)
     end
 
     describe "#run" do
       context "progress bar" do
-        before(:each) do
-          @pbar = mock(ProgressBar).as_null_object
-          @options[:items] << @item
-        end
-
         it "does not create a progress bar unless requested" do
           uploader = IShack::Uploader.new(@options.merge(:progress => false)  )
           uploader.stub(:upload)
@@ -45,16 +42,20 @@ describe IShack::Uploader do
       end
 
       it "transloads when the :transload option is set" do
-        uploader = IShack::Uploader.new(@options.merge(:transload => true))
+        item = @items.first
+        uri = mock(URI::HTTP)
+
+        URI.should_receive(:parse).with(item).and_return(uri)
+        uploader = IShack::Uploader.new(@options.merge(:transload => true, :items => [item]))
         uploader.stub(:display_results)
-        uploader.should_receive(:transload).with(@item)
+        uploader.should_receive(:transload).with(uri)
         uploader.run
       end
 
       it "uploads by default" do
         uploader = IShack::Uploader.new(@options.merge(:transload => false))
         uploader.stub(:display_results)
-        uploader.should_receive(:upload).with(@item)
+        @items.each {|item| uploader.should_receive(:upload).with(item).ordered}
         uploader.run
       end
     end
@@ -78,8 +79,8 @@ describe IShack::Uploader do
       end
 
       it "requires non-transloaded items to exist" do
-        File.should_receive(:exists?).with(@item).and_return(false)
-        lambda { IShack::Uploader.new(@options) }.should raise_error(ArgumentError)
+        File.stub(:exists?).and_return(false)
+        lambda { IShack::Uploader.new(@options.merge(:transload => false)) }.should raise_error(ArgumentError)
       end
 
       it "accepts valid options" do
@@ -92,6 +93,6 @@ private
 
   def set_valid_options
     @items = ["whatev.jpg", "thing.gif"]
-    @options = {:transload => false, :items => [@item], :key => 'secret', :progress => true}
+    @options = {:transload => false, :items => @items, :key => 'secret', :progress => true}
   end
 end
