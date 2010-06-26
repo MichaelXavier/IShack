@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
  
   s.add_development_dependency "rspec"
  
-  s.files        = Dir.glob("{bin,lib,spec}/**/*") + %w(LICENSE README.rdoc CHANGELOG.rdoc)
+  s.files        = Dir.glob("{bin,lib,spec,features}/**/*") + %w(LICENSE README.rdoc CHANGELOG.rdoc cucumber.yml)
   s.bindir       = 'bin'
   s.executables  = ['ishack']
   s.require_path = 'lib'

@@ -1,2 +1,10 @@
 = IShack
 A utility for uploading images to the ImageShack hosting service. ishack --help for usage.
+
+Currently, the application works but the specs aren't passing and I don't have much time to fix them.
+
+= TODO
+1. Get specs working
+2. Fix crappy output formatting
+3. Support STDIN uploading mode
+4. Per-file progress bar
