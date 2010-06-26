@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 $: << File.join( File.dirname( __FILE__ ), '..')
 require 'fileutils'
+require 'optparse'
 require 'lib/ishack'
 
 options = {
