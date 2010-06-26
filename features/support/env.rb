@@ -22,4 +22,3 @@ After do
   FakeFS.deactivate!
 end
 
-FakeWeb.allow_net_connect = false
