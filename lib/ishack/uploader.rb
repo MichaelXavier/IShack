@@ -10,6 +10,8 @@ module IShack
   class ImageshackError < RuntimeError; end
 
   class Uploader
+    attr_accessor :output
+
     class << self
       def api_uri
         URI.parse('http://www.imageshack.us/upload_api.php')
@@ -23,10 +25,11 @@ module IShack
       @key      = options[:key]
       @progress = options[:progress]
       @links    = []
+      @output   = $stdout
     end
 
     def run
-      pbar = ProgressBar.new("Progress", @items.length) if @progress
+      pbar = ProgressBar.new("Progress", @items.length, @output) if @progress
 
       @items.each do |i| 
         begin
@@ -63,7 +66,7 @@ module IShack
 
     def transload(uri)
       link = parse_result(Net::HTTP.post_form(IShack::Uploader.api_uri, {:key => @key, :url => uri.to_s}))
-      @links << ImageTuple.new(filename, link)
+      @links << ImageTuple.new(uri.to_s, link)
     end
 
     def parse_result(res)
@@ -96,7 +99,7 @@ module IShack
       left_width  = right_width if left_width <= 0 #if there's no room, screw it, just wrap
 
       @links.each do |link|
-        puts "#{link.origin[0...left_width].rjust(left_width)}:#{" ".center(mid, " ")}#{link.link.ljust(right_width)}"
+        @output.puts "#{link.origin[0...left_width].rjust(left_width)}:#{" ".center(mid, " ")}#{link.link.ljust(right_width)}"
       end
     end
 
